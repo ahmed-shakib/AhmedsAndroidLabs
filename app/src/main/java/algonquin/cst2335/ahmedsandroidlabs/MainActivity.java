@@ -14,4 +14,12 @@ public class MainActivity extends AppCompatActivity {
         // Loads the screen:
         setContentView(R.layout.activity_main);
     }
+
+
+
+
+
+
+
+    // add 8 blanck spaces
 }
