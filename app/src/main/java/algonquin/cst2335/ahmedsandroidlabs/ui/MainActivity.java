@@ -21,29 +21,71 @@ import algonquin.cst2335.ahmedsandroidlabs.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding variableBinding;
-    MainActivityViewModel model;
+    private MainActivityViewModel model;
     // static void main(String args[])
     @Override // This is the starting point:
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Initialize the view model
         model = new ViewModelProvider(this).get(MainActivityViewModel.class);
 
         // The new way of variable binding, replaces findViewById
         variableBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView( variableBinding.getRoot() );
 
+        // Binding the variables from the xml file
         TextView theText = variableBinding.theText;
         Button myButton = variableBinding.theButton;
         EditText myEdit = variableBinding.theEdit;
         CheckBox myCheckbox = variableBinding.theCheckbox;
         Switch mySwitch = variableBinding.theSwitch;
 
-        myCheckbox.setOnCheckedChangeListener( (a, b) -> theText.setText("The checkbox is on?" + b));
-        mySwitch.setOnCheckedChangeListener( (a, b) -> theText.setText("The switch is on?" + b));
+        // Lamda regular way -->
 
+//        myCheckbox.setOnCheckedChangeListener( ( a, b ) -> {
+//            // b is the new value of on or off
+//            theText.setText("The checkbox is on?" + b);
+//        } );
+//
+//        mySwitch.setOnCheckedChangeListener( ( a, b ) -> {
+//            // b is the new value of on or off
+//            theText.setText("The switch is on?" + b);
+//        } );
+
+        // If only one line of code then the curly bracket and the semi colon can be removed.
+        myCheckbox.setOnCheckedChangeListener( ( a, b ) -> theText.setText("The checkbox is on?" + b));
+        mySwitch.setOnCheckedChangeListener( ( a, b ) -> theText.setText("The switch is on?" + b));
+
+
+        // Setting the texts in the view model for surviving rotation
         theText.setText( model.theText );
-        myButton.setText( model.buttonText);
+        myButton.setText( model.buttonText );
+
+        myButton.setOnClickListener( (v) -> {
+            // Seting text in the model. So, when the phone is rotated the value is not re-initialized.
+            model.theText = "You clicked the button";
+            model.buttonText = "Something new here";
+
+            // Getting the text value from the model
+            theText.setText(model.theText);
+            myButton.setText(model.buttonText);
+
+        } );
+
+
+
+
+//        EditText myEdit = variableBinding.theEdit;
+//        CheckBox myCheckbox = variableBinding.theCheckbox;
+//        Switch mySwitch = variableBinding.theSwitch;
+
+
+
+        //myCheckbox.setOnCheckedChangeListener( (a, b) -> myCheckbox.setText("The checkbox is on?" + b));
+        //mySwitch.setOnCheckedChangeListener( (a, b) -> mySwitch.setText("The switch is on?" + b));
+
+
 
 //        variableBinding.theCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 //            @Override
@@ -59,22 +101,22 @@ public class MainActivity extends AppCompatActivity {
 //        });
 
         //Lamda Notation:
-        variableBinding.theCheckbox.setOnCheckedChangeListener( (a, b) -> {
-            model.isOn.postValue(b); // set to b, notify all observers
-        });
+//        variableBinding.theCheckbox.setOnCheckedChangeListener( (a, b) -> {
+//            model.isOn.postValue(b); // set to b, notify all observers
+//        });
+//
+//        variableBinding.theSwitch.setOnCheckedChangeListener( (a, b) -> {
+//            model.isOn.postValue(b);
+//        });
 
-        variableBinding.theSwitch.setOnCheckedChangeListener( (a, b) -> {
-            model.isOn.postValue(b);
-        });
 
-
-        variableBinding.theText.setText(model.theText);
-// This must be an onClickListener class
-        variableBinding.theButton.setOnClickListener(( click ) -> {
-                    model.theText = variableBinding.theEdit.getText().toString();
-                    variableBinding.theText.setText(model.theText);
-                }
-        );
+//        variableBinding.theText.setText(model.theText);
+//// This must be an onClickListener class
+//        variableBinding.theButton.setOnClickListener(( click ) -> {
+//                    model.theText = variableBinding.theEdit.getText().toString();
+//                    variableBinding.theText.setText(model.theText);
+//                }
+//        );
 
 //        variableBinding.theButton.setOnClickListener(new View.OnClickListener() {
 //            @Override

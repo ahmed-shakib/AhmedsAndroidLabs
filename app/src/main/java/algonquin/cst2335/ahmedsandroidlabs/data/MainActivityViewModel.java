@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModel;
 //correspond to what's on mainAcitivity
 public class MainActivityViewModel extends ViewModel {
 
-    public String theText = "Hello World";
-    public String buttonText = "Click me";
+    public String theText = "Hello world";
+    public String buttonText = "Cilck me";
     public MutableLiveData<Boolean> isOn = new MutableLiveData<>(false);
 
 }
