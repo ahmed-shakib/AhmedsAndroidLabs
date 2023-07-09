@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Ahmed\'s Android Labs</string>
+    <string name="textView">Hello World</string>
+    <string name="click" translatable="false">Click me</string>
+    <string name="edit" translatable="false">I\'m an edit text</string>
+
 </resources>
