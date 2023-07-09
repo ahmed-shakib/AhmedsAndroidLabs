@@ -8,6 +8,8 @@ public class MainActivityViewModel extends ViewModel {
 
     public String theText = "Hello world";
     public String buttonText = "Cilck me";
+    //public Boolean isOn = false;
+
     public MutableLiveData<Boolean> isOn = new MutableLiveData<>(false);
 
 }

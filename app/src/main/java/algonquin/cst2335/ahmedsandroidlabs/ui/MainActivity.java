@@ -8,8 +8,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -40,22 +42,32 @@ public class MainActivity extends AppCompatActivity {
         EditText myEdit = variableBinding.theEdit;
         CheckBox myCheckbox = variableBinding.theCheckbox;
         Switch mySwitch = variableBinding.theSwitch;
+        ImageButton myImageButton = variableBinding.theImageButton;
+
+        // Listen for changes to MutableLiveData
+        model.isOn.observe(this, (newValue) -> {
+            // In here isOn is changed and its new vlaue is newValue
+            variableBinding.theCheckbox.setChecked(newValue);
+            variableBinding.theSwitch.setChecked(newValue);
+        });
 
         // Lamda regular way -->
 
-//        myCheckbox.setOnCheckedChangeListener( ( a, b ) -> {
-//            // b is the new value of on or off
-//            theText.setText("The checkbox is on?" + b);
-//        } );
-//
-//        mySwitch.setOnCheckedChangeListener( ( a, b ) -> {
-//            // b is the new value of on or off
-//            theText.setText("The switch is on?" + b);
-//        } );
+        myCheckbox.setOnCheckedChangeListener( ( a, b ) -> {
+            // b is the new value of on or off
+                model.isOn.postValue(b); // set to b, notofy all observers
+            theText.setText("The checkbox is on?" + b);
+        } );
+
+        mySwitch.setOnCheckedChangeListener( ( a, b ) -> {
+            // b is the new value of on or off
+            model.isOn.postValue(b); // set to b, notofy all observers
+            theText.setText("The switch is on?" + b);
+        } );
 
         // If only one line of code then the curly bracket and the semi colon can be removed.
-        myCheckbox.setOnCheckedChangeListener( ( a, b ) -> theText.setText("The checkbox is on?" + b));
-        mySwitch.setOnCheckedChangeListener( ( a, b ) -> theText.setText("The switch is on?" + b));
+       // myCheckbox.setOnCheckedChangeListener( ( a, b ) -> theText.setText("The checkbox is on?" + b));
+        //mySwitch.setOnCheckedChangeListener( ( a, b ) -> theText.setText("The switch is on?" + b));
 
 
         // Setting the texts in the view model for surviving rotation
@@ -72,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
             myButton.setText(model.buttonText);
 
         } );
+
+        myImageButton.setOnClickListener( (v) -> Toast.makeText(this,"Image button clicked", Toast.LENGTH_LONG).show());
 
 
 
