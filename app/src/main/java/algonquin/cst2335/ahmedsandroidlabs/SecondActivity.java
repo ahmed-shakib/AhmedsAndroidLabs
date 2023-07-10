@@ -4,13 +4,19 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-public class SecondActivity extends AppCompatActivity {
+import algonquin.cst2335.ahmedsandroidlabs.databinding.ActivitySecondBinding;
 
+public class SecondActivity extends AppCompatActivity {
+    ActivitySecondBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+    binding = ActivitySecondBinding.inflate(getLayoutInflater());
         // Loads the xml file /res/layout/activity_second.xml
-        setContentView(R.layout.activity_second);
+        setContentView(binding.getRoot());
+
+        binding.goBack.setOnClickListener( (v) ->{
+            finish(); // go back to previous
+        } );
     }
 }
