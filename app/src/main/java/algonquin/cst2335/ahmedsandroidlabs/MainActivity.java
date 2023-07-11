@@ -2,10 +2,14 @@ package algonquin.cst2335.ahmedsandroidlabs;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+
+import java.io.File;
 
 import algonquin.cst2335.ahmedsandroidlabs.databinding.ActivityMainBinding;
 
@@ -22,13 +26,39 @@ public class MainActivity extends AppCompatActivity {
         Log.e(TAG, "In OnCreate()");
         setContentView(binding.getRoot());
 
+        // Where can you save files?
+        File myDir = getFilesDir();
+        String path = myDir.getAbsolutePath();
+
+        // Shared preferences
+        // Instantiate an SharedPreferences object
+        SharedPreferences savedPrefs = getSharedPreferences("MyFileName", Context.MODE_PRIVATE);
+        // Initiate an editor
+        SharedPreferences.Editor edit = savedPrefs.edit();
+
+        // Setting the value of the saved email address as email text
+        binding.email.setText(
+                savedPrefs.getString("Name", "default")
+        );
+
+
+
         binding.loginButton.setOnClickListener( (v) -> {
             Log.e(TAG, "You clicked the button");
+
+            String whatIsTyped = binding.email.getText().toString();
+
+            // Edit variables
+            edit.putInt("Age", 26);
+            edit.putString("Name", whatIsTyped);
+            // Save to disk
+
+            edit.commit();
 
             Intent nextPage = new Intent( this, SecondActivity.class);
 
 
-            String whatIsTyped = binding.email.getText().toString();
+
             nextPage.putExtra("EMAIL", whatIsTyped);
             nextPage.putExtra("AGE", 25);
             nextPage.putExtra("DAY", "Tuesday");
