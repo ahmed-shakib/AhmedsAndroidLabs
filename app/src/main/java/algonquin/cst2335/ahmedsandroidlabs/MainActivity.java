@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import java.io.File;
@@ -64,10 +65,14 @@ public class MainActivity extends AppCompatActivity {
             nextPage.putExtra("DAY", "Tuesday");
 
             // Go to another page with all the extra value above
-            startActivity(nextPage); // Carries all the data to the next page
+            //startActivity(nextPage); // Carries all the data to the next page
 
             // Pre-defined intents: https://developer.android.com/guide/components/intents-common
 
+            // Camera intent
+
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivity(cameraIntent);
             // A dialing intent - clicking the button invokes dialing
             //Intent dialIntent = new Intent(Intent.ACTION_DIAL);
             //intent.setData(Uri.parse("tel: "+ "6137274723"));
