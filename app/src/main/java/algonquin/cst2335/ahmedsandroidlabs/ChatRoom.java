@@ -41,8 +41,9 @@ public class ChatRoom extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         chatModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
-        messages = chatModel.messages;
+        messages= chatModel.messages;
 
+        // Event-handler to capture receive button clicks
         binding.sendButton.setOnClickListener( click ->{
             position = true;
             messages.add(new ChatMessage(binding.textInput.getText().toString(),currentDateandTime,true));
@@ -50,7 +51,7 @@ public class ChatRoom extends AppCompatActivity {
             // clear the previous text:
             binding.textInput.setText("");
         });
-
+        // Event-handler to capture receive button clicks
         binding.receiveButton.setOnClickListener( click ->{
             position = false;
             messages.add(new ChatMessage(binding.textInput.getText().toString(),currentDateandTime,false));
@@ -63,7 +64,7 @@ public class ChatRoom extends AppCompatActivity {
             @NonNull
             @Override
             public MyRowHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                // This inflates the row layout
+                // This inflates the row layout depending on the view type.
                 if(viewType == 0){
                     SentMessegeBinding binding = SentMessegeBinding.inflate(getLayoutInflater(), parent,false);
                     return new MyRowHolder( binding.getRoot() );
@@ -74,6 +75,7 @@ public class ChatRoom extends AppCompatActivity {
                 }
             }
 
+            // This is to decide which layout will be used
             @Override
             public int getItemViewType(int position) {
                 if (messages.get(position).isSentButton==true){
@@ -86,14 +88,17 @@ public class ChatRoom extends AppCompatActivity {
 
             @Override
             public void onBindViewHolder(@NonNull MyRowHolder holder, int position) {
-                // This initializes the row to data
 
+                // Clearing up the previous message and the time stamp
                 holder.messageText.setText("");
                 holder.timeText.setText("");
 
+                // Creating an instance of ChatMessage class
                 ChatMessage obj = messages.get(position);
+
+                // Setting the message text and the time stamp
                 holder.messageText.setText(obj.message);
-                holder.timeText.setText(currentDateandTime);
+                holder.timeText.setText(obj.timeSent);
             }
 
             @Override
