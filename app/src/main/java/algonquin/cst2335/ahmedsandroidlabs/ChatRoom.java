@@ -30,7 +30,7 @@ public class ChatRoom extends AppCompatActivity {
         binding.sendButton.setOnClickListener( click ->{
             // Getting the typed message
             messages.add(binding.textInput.getText().toString());
-            myAdapter.notifyItemInserted( messages.size()-1 );
+            myAdapter.notifyDataSetChanged();
             // clear the previous text:
             binding.textInput.setText("");
         });
@@ -49,9 +49,10 @@ public class ChatRoom extends AppCompatActivity {
                 // This initializes the row to data
 
                 holder.messageText.setText("");
-                holder.timeText.setText("");
+                //holder.timeText.setText("");
                 String obj = messages.get(position);
                 holder.messageText.setText(obj);
+                //holder.timeText.setText("Show time");
             }
 
             @Override
