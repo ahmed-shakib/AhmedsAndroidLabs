@@ -11,18 +11,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import algonquin.cst2335.ahmedsandroidlabs.data.ChatRoomViewModel;
 import algonquin.cst2335.ahmedsandroidlabs.databinding.ActivityChatRoomBinding;
+import algonquin.cst2335.ahmedsandroidlabs.databinding.ReceiveMessegeBinding;
 import algonquin.cst2335.ahmedsandroidlabs.databinding.SentMessegeBinding;
 
 public class ChatRoom extends AppCompatActivity {
 
     ChatRoomViewModel chatModel ;
     ActivityChatRoomBinding binding;
-    ArrayList<String> messages = new ArrayList<>();
+    ArrayList<ChatMessage> messages = new ArrayList<>();
     private RecyclerView.Adapter myAdapter;
+    boolean position;
+
+    //boolean isSend;
+
+    SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd-MMM-yyyy hh-mm-ss a");
+    String currentDateandTime = sdf.format(new Date());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +44,16 @@ public class ChatRoom extends AppCompatActivity {
         messages = chatModel.messages;
 
         binding.sendButton.setOnClickListener( click ->{
-            // Getting the typed message
-            messages.add(binding.textInput.getText().toString());
+            position = true;
+            messages.add(new ChatMessage(binding.textInput.getText().toString(),currentDateandTime,true));
+            myAdapter.notifyDataSetChanged();
+            // clear the previous text:
+            binding.textInput.setText("");
+        });
+
+        binding.receiveButton.setOnClickListener( click ->{
+            position = false;
+            messages.add(new ChatMessage(binding.textInput.getText().toString(),currentDateandTime,false));
             myAdapter.notifyDataSetChanged();
             // clear the previous text:
             binding.textInput.setText("");
@@ -47,8 +64,24 @@ public class ChatRoom extends AppCompatActivity {
             @Override
             public MyRowHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 // This inflates the row layout
-                SentMessegeBinding binding = SentMessegeBinding.inflate(getLayoutInflater());
-                return new MyRowHolder( binding.getRoot() );
+                if(viewType == 0){
+                    SentMessegeBinding binding = SentMessegeBinding.inflate(getLayoutInflater(), parent,false);
+                    return new MyRowHolder( binding.getRoot() );
+                }
+                else{
+                    ReceiveMessegeBinding binding = ReceiveMessegeBinding.inflate(getLayoutInflater(), parent, false);
+                    return new MyRowHolder( binding.getRoot() );
+                }
+            }
+
+            @Override
+            public int getItemViewType(int position) {
+                if (messages.get(position).isSentButton==true){
+                    return 0;
+                }
+                else{
+                    return 1;
+                }
             }
 
             @Override
@@ -56,10 +89,11 @@ public class ChatRoom extends AppCompatActivity {
                 // This initializes the row to data
 
                 holder.messageText.setText("");
-                //holder.timeText.setText("");
-                String obj = messages.get(position);
-                holder.messageText.setText(obj);
-                //holder.timeText.setText("Show time");
+                holder.timeText.setText("");
+
+                ChatMessage obj = messages.get(position);
+                holder.messageText.setText(obj.message);
+                holder.timeText.setText(currentDateandTime);
             }
 
             @Override
