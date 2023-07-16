@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import android.os.Bundle;
 import android.view.View;
@@ -14,6 +15,8 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import algonquin.cst2335.ahmedsandroidlabs.data.ChatRoomViewModel;
 import algonquin.cst2335.ahmedsandroidlabs.databinding.ActivityChatRoomBinding;
@@ -22,9 +25,9 @@ import algonquin.cst2335.ahmedsandroidlabs.databinding.SentMessegeBinding;
 
 public class ChatRoom extends AppCompatActivity {
 
-    ChatRoomViewModel chatModel ;
-    ActivityChatRoomBinding binding;
-    ArrayList<ChatMessage> messages = new ArrayList<>();
+    private ChatRoomViewModel chatModel ;
+    private ActivityChatRoomBinding binding;
+    private ArrayList<ChatMessage> messages = new ArrayList<>();
     private RecyclerView.Adapter myAdapter;
     boolean position;
 
@@ -42,6 +45,23 @@ public class ChatRoom extends AppCompatActivity {
 
         chatModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
         messages= chatModel.messages;
+
+        MessageDatabase db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
+        ChatMessageDAO mDAO= db.cmDAO();
+
+        if(messages == null)
+        {
+            //chatModel.messages.setValue(messages = new ArrayList<>()); // setValue is not working
+            chatModel.messages.addAll(messages = new ArrayList<>());
+
+            Executor thread = Executors.newSingleThreadExecutor();
+            thread.execute(() ->
+            {
+                messages.addAll( mDAO.getAllMessages() ); //Once you get the data from database
+
+                runOnUiThread( () ->  binding.recycleView.setAdapter( myAdapter )); //You can then load the RecyclerView
+            });
+        }
 
         // Event-handler to capture receive button clicks
         binding.sendButton.setOnClickListener( click ->{
