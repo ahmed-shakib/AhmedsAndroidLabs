@@ -1,6 +1,7 @@
 package algonquin.cst2335.ahmedsandroidlabs;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -10,7 +11,10 @@ import androidx.room.Room;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,10 +35,12 @@ public class ChatRoom extends AppCompatActivity {
     private RecyclerView.Adapter myAdapter;
     boolean position;
 
+    public ChatMessageDAO mDAO;
+   // public AlertDialog adt;
+
     //boolean isSend;
 
-    SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd-MMM-yyyy hh-mm-ss a");
-    String currentDateandTime = sdf.format(new Date());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +53,46 @@ public class ChatRoom extends AppCompatActivity {
         messages= chatModel.messages;
 
         MessageDatabase db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
-        ChatMessageDAO mDAO= db.cmDAO();
+        mDAO= db.cmDAO();
+
+        // Event-handler to capture receive button clicks
+        binding.sendButton.setOnClickListener( click ->{
+            SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd-MMM-yyyy hh-mm-ss a");
+            String currentDateAndTime = sdf.format(new Date());
+            String textInput = binding.textInput.getText().toString();
+
+            ChatMessage newMessage = new ChatMessage(textInput,currentDateAndTime,true);
+
+            Executor thread = Executors.newSingleThreadExecutor();
+            thread.execute(()->{
+                newMessage.id = mDAO.insertMessage(newMessage); // Adds to database
+            });
+
+            messages.add(newMessage); // Adds to Arraylist
+            //messages.add(new ChatMessage(binding.textInput.getText().toString(),currentDateandTime,true));
+            myAdapter.notifyDataSetChanged();
+            // clear the previous text:
+            binding.textInput.setText("");
+        });
+        // Event-handler to capture receive button clicks
+        binding.receiveButton.setOnClickListener( click ->{
+            SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd-MMM-yyyy hh-mm-ss a");
+            String currentDateAndTime = sdf.format(new Date());
+            String textInput = binding.textInput.getText().toString();
+
+            ChatMessage newMessage = new ChatMessage(textInput,currentDateAndTime,false);
+
+            Executor thread = Executors.newSingleThreadExecutor();
+            thread.execute(()->{
+                newMessage.id = mDAO.insertMessage(newMessage); // Adds to database
+            });
+
+            messages.add(newMessage); // Adds to Arraylist
+            //messages.add(new ChatMessage(binding.textInput.getText().toString(),currentDateandTime,true));
+            myAdapter.notifyDataSetChanged();
+            // clear the previous text:
+            binding.textInput.setText("");
+        });
 
         if(messages == null)
         {
@@ -62,23 +107,6 @@ public class ChatRoom extends AppCompatActivity {
                 runOnUiThread( () ->  binding.recycleView.setAdapter( myAdapter )); //You can then load the RecyclerView
             });
         }
-
-        // Event-handler to capture receive button clicks
-        binding.sendButton.setOnClickListener( click ->{
-            position = true;
-            messages.add(new ChatMessage(binding.textInput.getText().toString(),currentDateandTime,true));
-            myAdapter.notifyDataSetChanged();
-            // clear the previous text:
-            binding.textInput.setText("");
-        });
-        // Event-handler to capture receive button clicks
-        binding.receiveButton.setOnClickListener( click ->{
-            position = false;
-            messages.add(new ChatMessage(binding.textInput.getText().toString(),currentDateandTime,false));
-            myAdapter.notifyDataSetChanged();
-            // clear the previous text:
-            binding.textInput.setText("");
-        });
 
         binding.recycleView.setAdapter(myAdapter = new RecyclerView.Adapter<MyRowHolder>() {
             @NonNull
@@ -137,6 +165,40 @@ public class ChatRoom extends AppCompatActivity {
         TextView timeText;
         public MyRowHolder(@NonNull View itemView) {
             super(itemView);
+
+            itemView.setOnClickListener(clk->{
+                int position = getLayoutPosition();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder( ChatRoom.this );
+
+                builder.setMessage( "Do you want to delete the message: " + messageText.getText() );
+                builder.setTitle("Question:");
+
+                builder.setPositiveButton("yes",( dialog, cl )->{
+                   ChatMessage removedMessage = messages.get(position);
+
+                   Executor thread1 = Executors.newSingleThreadExecutor();
+                   thread1.execute(()->{
+                       mDAO.deleteMessage( removedMessage );
+                       messages.remove(position);
+
+                       runOnUiThread(()->{
+                           myAdapter.notifyDataSetChanged();
+                       });
+                       Snackbar.make(messageText,"You deleted message #"+position,Snackbar.LENGTH_LONG)
+                               .setAction("Undo",click ->{
+                                   messages.add(position,removedMessage);
+                                   myAdapter.notifyDataSetChanged();
+                               })
+                               .show();
+                   });
+
+                });
+                builder.setNegativeButton("No",( dlg, wh )->{
+                });
+                builder.create().show();
+
+            });
             messageText = itemView.findViewById(R.id.messageText);
             timeText = itemView.findViewById((R.id.timeText));
         }
