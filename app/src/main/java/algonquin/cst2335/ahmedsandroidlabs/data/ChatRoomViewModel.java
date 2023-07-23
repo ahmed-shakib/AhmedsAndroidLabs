@@ -10,4 +10,6 @@ import algonquin.cst2335.ahmedsandroidlabs.ChatMessage;
 public class ChatRoomViewModel extends ViewModel {
     public ArrayList<ChatMessage> messages = new ArrayList<>();
     //public MutableLiveData<ArrayList<String>> messages = new MutableLiveData< >();
+    public MutableLiveData<ChatMessage> selectedMessage = new MutableLiveData< >();
+
 }

@@ -3,6 +3,8 @@ package algonquin.cst2335.ahmedsandroidlabs;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,6 +37,8 @@ public class ChatRoom extends AppCompatActivity {
     private RecyclerView.Adapter myAdapter;
     boolean position;
 
+    //ChatMessage newValue;
+
     public ChatMessageDAO mDAO;
    // public AlertDialog adt;
 
@@ -51,6 +55,17 @@ public class ChatRoom extends AppCompatActivity {
 
         chatModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
         messages= chatModel.messages;
+
+        chatModel.selectedMessage.observe(this, (newValue) -> {
+
+            MessageDetailsFragment detailsFragment = new MessageDetailsFragment( newValue );
+
+            FragmentManager fMgr = getSupportFragmentManager();
+            FragmentTransaction tx = fMgr.beginTransaction();
+            //tx.addToBackStack("Changed behavior of back button");
+            tx.replace(R.id.fragmentLocation,detailsFragment);
+            tx.commit();
+        });
 
         MessageDatabase db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
         mDAO= db.cmDAO();
@@ -163,10 +178,16 @@ public class ChatRoom extends AppCompatActivity {
 
         TextView messageText;
         TextView timeText;
+
         public MyRowHolder(@NonNull View itemView) {
             super(itemView);
 
             itemView.setOnClickListener(clk->{
+
+                int position = getLayoutPosition();
+                ChatMessage selected = messages.get(position);
+                chatModel.selectedMessage.postValue(selected);
+                /*
                 int position = getLayoutPosition();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder( ChatRoom.this );
@@ -197,7 +218,7 @@ public class ChatRoom extends AppCompatActivity {
                 builder.setNegativeButton("No",( dlg, wh )->{
                 });
                 builder.create().show();
-
+                */
             });
             messageText = itemView.findViewById(R.id.messageText);
             timeText = itemView.findViewById((R.id.timeText));
