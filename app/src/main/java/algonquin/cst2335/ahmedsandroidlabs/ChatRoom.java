@@ -11,10 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -53,18 +56,20 @@ public class ChatRoom extends AppCompatActivity {
         binding = ActivityChatRoomBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        setSupportActionBar(binding.myToolbar);
+
         chatModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
         messages= chatModel.messages;
 
         chatModel.selectedMessage.observe(this, (newValue) -> {
 
-            MessageDetailsFragment detailsFragment = new MessageDetailsFragment( newValue );
-
-            FragmentManager fMgr = getSupportFragmentManager();
-            FragmentTransaction tx = fMgr.beginTransaction();
-            //tx.addToBackStack("Changed behavior of back button");
-            tx.replace(R.id.fragmentLocation,detailsFragment);
-            tx.commit();
+//            MessageDetailsFragment detailsFragment = new MessageDetailsFragment( newValue );
+//
+//            FragmentManager fMgr = getSupportFragmentManager();
+//            FragmentTransaction tx = fMgr.beginTransaction();
+//            //tx.addToBackStack("Changed behavior of back button");
+//            tx.replace(R.id.fragmentLocation,detailsFragment);
+//            tx.commit();
         });
 
         MessageDatabase db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
@@ -173,6 +178,60 @@ public class ChatRoom extends AppCompatActivity {
         });
         binding.recycleView.setLayoutManager(new LinearLayoutManager(this));
     }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        TextView messageText = findViewById(R.id.messageText);
+        TextView timeText = findViewById((R.id.timeText));
+        if (item.getItemId() == R.id.item_1 && messages.size()>0) {
+
+            int position = messages.size()-1;
+            AlertDialog.Builder builder = new AlertDialog.Builder( ChatRoom.this );
+
+            builder.setMessage( "Do you want to delete the message?");
+            builder.setTitle("Question:");
+
+            builder.setPositiveButton("yes",( dialog, cl )->{
+
+                ChatMessage removedMessage = messages.get(position);
+
+                Executor thread1 = Executors.newSingleThreadExecutor();
+                thread1.execute(()->{
+                    mDAO.deleteMessage( removedMessage );
+                    messages.remove(position);
+
+                    runOnUiThread(()->{
+                        myAdapter.notifyDataSetChanged();
+                    });
+                    Snackbar.make(messageText,"You deleted message #"+position,Snackbar.LENGTH_LONG)
+                            .setAction("Undo",click ->{
+                                messages.add(position,removedMessage);
+                                myAdapter.notifyDataSetChanged();
+                            })
+                            .show();
+                });
+
+            });
+            builder.setNegativeButton("No",( dlg, wh )->{
+            });
+            builder.create().show();
+
+        }
+        else if (item.getItemId() == R.id.item_2){
+            Toast.makeText(this,"Version 1.0, created by Farhana",Toast.LENGTH_LONG).show();
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.my_menu, menu);
+        return true;
+    }
+
+
+
 
     protected class MyRowHolder extends RecyclerView.ViewHolder {
 
